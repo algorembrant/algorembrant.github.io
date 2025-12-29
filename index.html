@@ -496,7 +496,7 @@
 
         // Configuration
         const CONFIG = {
-            GOOGLE_SHEET_URL: 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE',
+            GOOGLE_SHEET_URL: 'https://script.google.com/macros/s/AKfycbzLR2_Yf87hB1-I3sm7cvyCwqJqBAhK8Fj6u8g67lUhvTkEItSkUUqYJcp0ze8I14k/exec',
             PDF_FOLDER: 'papers/',
             PAPERS: [
                 'paper1.pdf',
@@ -726,13 +726,13 @@
                 action: 'download'
             };
 
-            // If you have a Google Apps Script web app URL, uncomment and use:
-            // const response = await fetch(CONFIG.GOOGLE_SHEET_URL, {
-            //     method: 'POST',
-            //     mode: 'no-cors',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(data)
-            // });
+            
+            const response = await fetch(CONFIG.GOOGLE_SHEET_URL, {
+                 method: 'POST',
+                 mode: 'no-cors',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(data)
+             });
 
             console.log('Download data:', data);
             return data;
