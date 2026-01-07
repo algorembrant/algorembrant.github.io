@@ -1,0 +1,1065 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Browser Trading Terminal (Paper)</title>
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f1a33; --panel2:#0c1630; --text:#e6eefc; --muted:#9fb0d0;
+      --line:#1b2b55; --good:#2ee59d; --bad:#ff4d6d; --warn:#fbbf24; --accent:#60a5fa;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:radial-gradient(1000px 600px at 20% 0%, #13244f 0%, var(--bg) 55%) fixed;
+      color:var(--text); font-family:var(--sans);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(11,18,32,.72); backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(96,165,250,.18);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:14px 14px;}
+    .toprow{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .brand{display:flex; align-items:baseline; gap:10px}
+    .brand h1{font-size:16px; margin:0; letter-spacing:.4px}
+    .pill{font-family:var(--mono); font-size:12px; color:var(--muted); padding:4px 8px; border:1px solid rgba(96,165,250,.25); border-radius:999px; background:rgba(15,26,51,.55)}
+    .grid{
+      display:grid; grid-template-columns: 1.35fr .65fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
+    .panel{
+      border:1px solid rgba(96,165,250,.18);
+      background: linear-gradient(180deg, rgba(15,26,51,.85), rgba(12,22,48,.78));
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,.25);
+    }
+    .panel .hd{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px; border-bottom:1px solid rgba(96,165,250,.14);
+    }
+    .panel .hd .title{font-weight:650; font-size:13px; color:#d9e7ff}
+    .panel .bd{padding:12px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    label{font-size:12px; color:var(--muted)}
+    input, select, button, textarea{
+      font-family:inherit;
+      border-radius:10px;
+      border:1px solid rgba(96,165,250,.22);
+      background: rgba(7,13,26,.55);
+      color:var(--text);
+      padding:10px 10px;
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(96,165,250,.55);
+      box-shadow: 0 0 0 3px rgba(96,165,250,.15);
+    }
+    .field{display:flex; flex-direction:column; gap:6px}
+    .field.inline{flex:1; min-width:160px}
+    .btn{
+      cursor:pointer; font-weight:650; letter-spacing:.2px;
+      transition:.15s ease;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn:active{transform: translateY(0)}
+    .btn.primary{background: rgba(96,165,250,.18); border-color: rgba(96,165,250,.35)}
+    .btn.good{background: rgba(46,229,157,.12); border-color: rgba(46,229,157,.35)}
+    .btn.bad{background: rgba(255,77,109,.12); border-color: rgba(255,77,109,.35)}
+    .btn.ghost{background: transparent}
+    .btn.small{padding:8px 10px; border-radius:10px; font-size:12px}
+    .kpis{
+      display:grid; grid-template-columns: repeat(4, 1fr);
+      gap:10px; margin-top:10px;
+    }
+    @media (max-width: 980px){ .kpis{grid-template-columns: repeat(2, 1fr)} }
+    .kpi{
+      border:1px solid rgba(96,165,250,.14);
+      background: rgba(9,16,33,.45);
+      border-radius:12px;
+      padding:10px;
+    }
+    .kpi .k{font-size:11px; color:var(--muted)}
+    .kpi .v{font-family:var(--mono); font-size:14px; margin-top:4px}
+    .split{
+      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
+    }
+    @media (max-width: 980px){ .split{grid-template-columns: 1fr} }
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .table th, .table td{
+      padding:8px 8px;
+      border-bottom: 1px solid rgba(96,165,250,.12);
+      text-align:left;
+      white-space:nowrap;
+    }
+    .table th{color: #cfe0ff; font-weight: 650}
+    .muted{color:var(--muted)}
+    .pos{color:var(--good)}
+    .neg{color:var(--bad)}
+    .tag{
+      padding:2px 8px; border-radius:999px; font-size:11px;
+      border:1px solid rgba(96,165,250,.22); color:#cfe0ff;
+      background: rgba(96,165,250,.08);
+      display:inline-block;
+    }
+    .tag.good{border-color: rgba(46,229,157,.3); background: rgba(46,229,157,.10)}
+    .tag.bad{border-color: rgba(255,77,109,.3); background: rgba(255,77,109,.10)}
+    .log{
+      height: 230px;
+      overflow:auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.35;
+      background: rgba(7,13,26,.45);
+      border:1px solid rgba(96,165,250,.14);
+      border-radius:12px;
+      padding:10px;
+      white-space: pre-wrap;
+    }
+    .chartWrap{height: 520px;}
+    @media (max-width: 980px){ .chartWrap{height: 420px;} }
+    .hint{font-size:12px; color:var(--muted); margin-top:8px}
+    .danger-note{
+      border-left: 3px solid rgba(251,191,36,.7);
+      padding:10px 12px;
+      background: rgba(251,191,36,.08);
+      border-radius: 10px;
+      color:#fce7a7;
+      font-size:12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="toprow">
+        <div class="brand">
+          <h1>Paper Trading Terminal</h1>
+          <span class="pill" id="statusPill">offline</span>
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn small ghost" id="btnExport">Export trades (CSV)</button>
+        <button class="btn small ghost" id="btnReset">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <!-- LEFT: Chart + market controls -->
+      <section class="panel">
+        <div class="hd">
+          <div class="title">Chart</div>
+          <div class="row">
+            <span class="pill" id="lastPricePill">—</span>
+            <span class="pill" id="spreadPill">spread: —</span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="row">
+            <div class="field inline">
+              <label>Symbol</label>
+              <select id="symbol">
+                <option value="BTCUSDT">BTCUSDT</option>
+                <option value="ETHUSDT">ETHUSDT</option>
+                <option value="SOLUSDT">SOLUSDT</option>
+                <option value="BNBUSDT">BNBUSDT</option>
+                <option value="XRPUSDT">XRPUSDT</option>
+                <option value="DOGEUSDT">DOGEUSDT</option>
+              </select>
+            </div>
+            <div class="field inline">
+              <label>Timeframe</label>
+              <select id="tf">
+                <option value="1m">1m</option>
+                <option value="5m" selected>5m</option>
+                <option value="15m">15m</option>
+                <option value="1h">1h</option>
+                <option value="4h">4h</option>
+                <option value="1d">1d</option>
+              </select>
+            </div>
+            <div class="field inline">
+              <label>History candles</label>
+              <select id="limit">
+                <option>200</option>
+                <option selected>500</option>
+                <option>800</option>
+                <option>1000</option>
+              </select>
+            </div>
+            <div class="field inline">
+              <label>Data source</label>
+              <select id="source">
+                <option value="binance" selected>Binance (public)</option>
+                <option value="sim">Simulator (offline)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button class="btn primary" id="btnLoad">Load</button>
+            </div>
+          </div>
+
+          <div class="chartWrap panel" style="margin-top:12px;">
+            <div class="hd">
+              <div class="title">
+                <span id="chartTitle">—</span>
+                <span class="tag" id="connTag">DISCONNECTED</span>
+              </div>
+              <div class="row">
+                <button class="btn small ghost" id="btnFit">Fit</button>
+                <button class="btn small ghost" id="btnToggleEMA">EMA(20)</button>
+              </div>
+            </div>
+            <div class="bd" style="padding:0">
+              <div id="chart" style="width:100%; height:440px;"></div>
+            </div>
+          </div>
+
+          <div class="hint">
+            This is a <b>paper</b> trading terminal: orders are simulated locally. Market data is public.
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Order entry + account + tables -->
+      <aside class="panel">
+        <div class="hd">
+          <div class="title">Order Entry (Paper)</div>
+          <div class="row">
+            <span class="pill">fee: 0.10%</span>
+            <span class="pill">slippage: <span id="slipText">0.02%</span></span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="danger-note">
+            Not financial advice. No real orders are placed. Keep API keys out of the browser.
+          </div>
+
+          <div class="split" style="margin-top:12px;">
+            <div class="field">
+              <label>Order type</label>
+              <select id="ordType">
+                <option value="market" selected>Market</option>
+                <option value="limit">Limit</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Side</label>
+              <select id="side">
+                <option value="buy" selected>Buy</option>
+                <option value="sell">Sell</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Quantity (base)</label>
+              <input id="qty" type="number" min="0" step="0.0001" value="0.01" />
+            </div>
+            <div class="field">
+              <label>Limit price</label>
+              <input id="limitPrice" type="number" min="0" step="0.01" placeholder="auto (best)" />
+            </div>
+          </div>
+
+          <div class="split" style="margin-top:10px;">
+            <div class="field">
+              <label>Slippage (bps)</label>
+              <input id="slippageBps" type="number" min="0" step="1" value="2" />
+            </div>
+            <div class="field">
+              <label>Leverage (isolated, paper)</label>
+              <input id="leverage" type="number" min="1" max="20" step="1" value="1" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <button class="btn good" id="btnBuy" style="flex:1">Buy</button>
+            <button class="btn bad" id="btnSell" style="flex:1">Sell</button>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi"><div class="k">Equity (USDT)</div><div class="v" id="eq">—</div></div>
+            <div class="kpi"><div class="k">Cash (USDT)</div><div class="v" id="cash">—</div></div>
+            <div class="kpi"><div class="k">Position</div><div class="v" id="pos">—</div></div>
+            <div class="kpi"><div class="k">Unrealized PnL</div><div class="v" id="upnl">—</div></div>
+          </div>
+
+          <div class="panel" style="margin-top:12px;">
+            <div class="hd">
+              <div class="title">Open orders</div>
+              <button class="btn small ghost" id="btnCancelAll">Cancel all</button>
+            </div>
+            <div class="bd" style="padding:0">
+              <table class="table" id="ordersTable">
+                <thead>
+                  <tr>
+                    <th>Time</th><th>Side</th><th>Type</th><th>Qty</th><th>Price</th><th>Status</th><th></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top:12px;">
+            <div class="hd">
+              <div class="title">Trades</div>
+              <button class="btn small ghost" id="btnClearTrades">Clear</button>
+            </div>
+            <div class="bd" style="padding:0">
+              <table class="table" id="tradesTable">
+                <thead>
+                  <tr>
+                    <th>Time</th><th>Side</th><th>Qty</th><th>Fill</th><th>Fee</th><th>Realized</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <div class="row" style="justify-content:space-between">
+              <div class="title" style="font-weight:650; font-size:13px;">Event log</div>
+              <button class="btn small ghost" id="btnClearLog">Clear</button>
+            </div>
+            <div class="log" id="log"></div>
+          </div>
+
+        </div>
+      </aside>
+    </div>
+  </main>
+
+<script>
+(() => {
+  // ---------- Utilities ----------
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n, d=2) => (Number.isFinite(n) ? n.toLocaleString(undefined,{maximumFractionDigits:d, minimumFractionDigits:d}) : "—");
+  const fmt4 = (n) => (Number.isFinite(n) ? n.toLocaleString(undefined,{maximumFractionDigits:4}) : "—");
+  const nowStr = () => new Date().toLocaleString();
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
+
+  function log(msg, kind="info"){
+    const el = $("log");
+    const prefix = kind==="err" ? "[ERR] " : kind==="warn" ? "[WARN] " : "[INFO] ";
+    el.textContent = `${prefix}${nowStr()} — ${msg}\n` + el.textContent;
+  }
+
+  // ---------- State ----------
+  const state = {
+    source: "binance",
+    symbol: "BTCUSDT",
+    tf: "5m",
+    limit: 500,
+
+    // market
+    candles: [],
+    last: null,
+    bid: null,
+    ask: null,
+
+    // chart
+    chart: null,
+    candleSeries: null,
+    emaSeries: null,
+    showEMA: true,
+
+    // websockets
+    wsKline: null,
+    wsBook: null,
+
+    // paper account
+    feeRate: 0.001, // 0.10%
+    cash: 10000,
+    posQty: 0,          // base units
+    posAvg: 0,          // average entry price
+    realized: 0,
+    orders: [],         // open limit orders
+    trades: [],         // fills
+
+    // sim feed
+    simTimer: null,
+    simPrice: 40000
+  };
+
+  // ---------- Chart ----------
+  function initChart(){
+    const container = $("chart");
+    container.innerHTML = "";
+
+    state.chart = LightweightCharts.createChart(container, {
+      layout: {
+        background: { color: 'rgba(0,0,0,0)' },
+        textColor: '#e6eefc',
+        fontFamily: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
+      },
+      grid: {
+        vertLines: { color: 'rgba(96,165,250,.08)' },
+        horzLines: { color: 'rgba(96,165,250,.08)' },
+      },
+      rightPriceScale: { borderColor: 'rgba(96,165,250,.18)' },
+      timeScale: { borderColor: 'rgba(96,165,250,.18)', timeVisible:true, secondsVisible:false },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Magnet },
+      handleScroll: true,
+      handleScale: true,
+    });
+
+    state.candleSeries = state.chart.addCandlestickSeries({
+      upColor: 'rgba(46,229,157,0.95)',
+      downColor: 'rgba(255,77,109,0.95)',
+      borderUpColor: 'rgba(46,229,157,1)',
+      borderDownColor: 'rgba(255,77,109,1)',
+      wickUpColor: 'rgba(46,229,157,1)',
+      wickDownColor: 'rgba(255,77,109,1)'
+    });
+
+    state.emaSeries = state.chart.addLineSeries({
+      color: 'rgba(96,165,250,.95)',
+      lineWidth: 2,
+      priceLineVisible: false
+    });
+
+    window.addEventListener("resize", () => {
+      state.chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    }, { passive:true });
+
+    // size immediately
+    state.chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+  }
+
+  function computeEMA(values, period=20){
+    const k = 2/(period+1);
+    let ema = null;
+    const out = [];
+    for (let i=0;i<values.length;i++){
+      const v = values[i];
+      if (ema === null) ema = v;
+      else ema = v*k + ema*(1-k);
+      out.push(ema);
+    }
+    return out;
+  }
+
+  function updateChart(){
+    if (!state.candleSeries) initChart();
+
+    const c = state.candles;
+    state.candleSeries.setData(c);
+
+    if (state.showEMA && c.length){
+      const closes = c.map(x => x.close);
+      const ema = computeEMA(closes, 20);
+      const emaData = c.map((x, i) => ({ time: x.time, value: ema[i] }));
+      state.emaSeries.setData(emaData);
+      state.emaSeries.applyOptions({ visible: true });
+    } else {
+      state.emaSeries.applyOptions({ visible: false });
+    }
+  }
+
+  // ---------- Data: Binance REST ----------
+  async function fetchKlines(symbol, interval, limit){
+    const url = new URL("https://api.binance.com/api/v3/klines");
+    url.searchParams.set("symbol", symbol);
+    url.searchParams.set("interval", interval);
+    url.searchParams.set("limit", String(limit));
+    const res = await fetch(url.toString(), { cache: "no-store" });
+    if (!res.ok) throw new Error(`REST error ${res.status}`);
+    const data = await res.json();
+    // [ openTime, open, high, low, close, volume, closeTime, ... ]
+    return data.map(k => ({
+      time: Math.floor(k[0]/1000),
+      open: Number(k[1]),
+      high: Number(k[2]),
+      low: Number(k[3]),
+      close: Number(k[4]),
+      volume: Number(k[5])
+    }));
+  }
+
+  function closeSockets(){
+    if (state.wsKline){ try{ state.wsKline.close(); }catch{} state.wsKline=null; }
+    if (state.wsBook){ try{ state.wsBook.close(); }catch{} state.wsBook.close=null; state.wsBook=null; }
+  }
+
+  function setConn(connected, text){
+    $("connTag").textContent = text;
+    $("connTag").className = "tag " + (connected ? "good" : "bad");
+    $("statusPill").textContent = connected ? "live" : "offline";
+  }
+
+  function connectBinanceStreams(symbol, interval){
+    closeSockets();
+    const symLower = symbol.toLowerCase();
+
+    // Kline stream
+    const wsK = new WebSocket(`wss://stream.binance.com:9443/ws/${symLower}@kline_${interval}`);
+    state.wsKline = wsK;
+
+    wsK.onopen = () => { setConn(true, "CONNECTED"); log(`WS connected (kline) ${symbol} ${interval}`); };
+    wsK.onclose = () => { setConn(false, "DISCONNECTED"); log("WS closed (kline)", "warn"); };
+    wsK.onerror = () => { setConn(false, "ERROR"); log("WS error (kline)", "err"); };
+
+    wsK.onmessage = (ev) => {
+      const msg = JSON.parse(ev.data);
+      if (!msg.k) return;
+      const k = msg.k;
+      const bar = {
+        time: Math.floor(k.t/1000),
+        open: Number(k.o),
+        high: Number(k.h),
+        low: Number(k.l),
+        close: Number(k.c),
+        volume: Number(k.v)
+      };
+      state.last = bar.close;
+
+      // update last candle or append
+      const c = state.candles;
+      if (!c.length) c.push(bar);
+      else {
+        const last = c[c.length-1];
+        if (last.time === bar.time) c[c.length-1] = bar;
+        else if (bar.time > last.time) c.push(bar);
+      }
+      // keep cap
+      const lim = Number($("limit").value);
+      if (c.length > lim) c.splice(0, c.length - lim);
+
+      state.candleSeries.update(bar);
+      if (state.showEMA){
+        // cheap EMA update: recompute from last N to keep simple
+        const closes = c.map(x => x.close);
+        const ema = computeEMA(closes, 20);
+        state.emaSeries.setData(c.map((x,i)=>({time:x.time, value: ema[i]})));
+      }
+
+      onMarketTick();
+    };
+
+    // Book ticker for bid/ask
+    const wsB = new WebSocket(`wss://stream.binance.com:9443/ws/${symLower}@bookTicker`);
+    state.wsBook = wsB;
+    wsB.onopen = () => log(`WS connected (book) ${symbol}`);
+    wsB.onclose = () => log("WS closed (book)", "warn");
+    wsB.onerror = () => log("WS error (book)", "err");
+    wsB.onmessage = (ev) => {
+      const m = JSON.parse(ev.data);
+      state.bid = Number(m.b);
+      state.ask = Number(m.a);
+      onMarketTick();
+    };
+  }
+
+  // ---------- Offline simulator ----------
+  function startSim(){
+    stopSim();
+    setConn(false, "SIM");
+    $("statusPill").textContent = "sim";
+    log("Simulator started (offline feed).");
+
+    // seed candles if empty
+    const tf = $("tf").value;
+    const stepSec = intervalToSec(tf);
+    const limit = Number($("limit").value);
+    const base = state.simPrice || 40000;
+
+    let t = Math.floor(Date.now()/1000) - limit*stepSec;
+    let price = base;
+    const candles = [];
+    for (let i=0;i<limit;i++){
+      const o = price;
+      price = stepPrice(price);
+      const c = price;
+      const hi = Math.max(o,c) * (1 + Math.random()*0.002);
+      const lo = Math.min(o,c) * (1 - Math.random()*0.002);
+      candles.push({ time: t, open:o, high:hi, low:lo, close:c, volume: Math.random()*10 });
+      t += stepSec;
+    }
+    state.candles = candles;
+    state.last = candles[candles.length-1].close;
+    state.bid = state.last * 0.9998;
+    state.ask = state.last * 1.0002;
+    updateChart();
+    state.chart.timeScale().fitContent();
+
+    // update current candle
+    state.simTimer = setInterval(() => {
+      const lastC = state.candles[state.candles.length-1];
+      const now = Math.floor(Date.now()/1000);
+      const tfSec = stepSec;
+      const bucket = Math.floor(now/tfSec)*tfSec;
+
+      const nextPrice = stepPrice(state.last);
+      state.last = nextPrice;
+      state.bid = nextPrice * 0.9998;
+      state.ask = nextPrice * 1.0002;
+
+      if (lastC.time === bucket){
+        const c = {
+          ...lastC,
+          close: nextPrice,
+          high: Math.max(lastC.high, nextPrice),
+          low: Math.min(lastC.low, nextPrice),
+          volume: lastC.volume + Math.random()*2
+        };
+        state.candles[state.candles.length-1] = c;
+        state.candleSeries.update(c);
+      } else if (bucket > lastC.time){
+        const o = lastC.close;
+        const c = nextPrice;
+        const hi = Math.max(o,c);
+        const lo = Math.min(o,c);
+        const newC = { time: bucket, open:o, high:hi, low:lo, close:c, volume: Math.random()*10 };
+        state.candles.push(newC);
+        const lim = Number($("limit").value);
+        if (state.candles.length > lim) state.candles.splice(0, state.candles.length - lim);
+        state.candleSeries.update(newC);
+      }
+      if (state.showEMA){
+        const closes = state.candles.map(x => x.close);
+        const ema = computeEMA(closes, 20);
+        state.emaSeries.setData(state.candles.map((x,i)=>({time:x.time, value: ema[i]})));
+      }
+      onMarketTick();
+    }, 900);
+  }
+
+  function stopSim(){
+    if (state.simTimer){ clearInterval(state.simTimer); state.simTimer=null; }
+  }
+
+  function stepPrice(p){
+    // geometric random walk
+    const vol = 0.0018;
+    const drift = 0.00002;
+    const r = (Math.random()*2-1)*vol + drift;
+    return Math.max(0.0000001, p * (1 + r));
+  }
+
+  function intervalToSec(tf){
+    const m = { "1m":60, "5m":300, "15m":900, "1h":3600, "4h":14400, "1d":86400 };
+    return m[tf] || 300;
+  }
+
+  // ---------- Paper trading engine ----------
+  function mid(){
+    if (Number.isFinite(state.bid) && Number.isFinite(state.ask)) return (state.bid + state.ask)/2;
+    if (Number.isFinite(state.last)) return state.last;
+    const c = state.candles;
+    return c.length ? c[c.length-1].close : NaN;
+  }
+
+  function slippageRate(){
+    const bps = clamp(Number($("slippageBps").value || 0), 0, 200);
+    $("slipText").textContent = (bps/100).toFixed(2) + "%";
+    return bps / 10000;
+  }
+
+  function bestFillPrice(side){
+    // simulate marketable fill with slippage against mid
+    const m = mid();
+    const slip = slippageRate();
+    if (!Number.isFinite(m)) return NaN;
+    return side === "buy" ? m*(1+slip) : m*(1-slip);
+  }
+
+  function placeOrder(side, type, qty, price){
+    if (!Number.isFinite(qty) || qty <= 0) throw new Error("Quantity must be > 0");
+    const id = uid();
+    const ord = {
+      id,
+      time: Date.now(),
+      symbol: state.symbol,
+      side,
+      type,
+      qty,
+      price: type==="limit" ? price : null,
+      status: type==="limit" ? "OPEN" : "FILLED"
+    };
+
+    if (type === "market"){
+      const fill = bestFillPrice(side);
+      if (!Number.isFinite(fill)) throw new Error("No market price available yet");
+      fillTrade(side, qty, fill);
+      log(`Market ${side.toUpperCase()} filled: qty=${qty} @ ${fmt(fill, 2)}`);
+    } else {
+      if (!Number.isFinite(price) || price <= 0) throw new Error("Limit price required");
+      state.orders.unshift(ord);
+      log(`Limit ${side.toUpperCase()} placed: qty=${qty} @ ${fmt(price, 2)}`);
+    }
+
+    renderTables();
+    renderAccount();
+  }
+
+  function fillTrade(side, qty, fillPrice){
+    // fee charged in quote (USDT)
+    const notional = qty * fillPrice;
+    const fee = notional * state.feeRate;
+
+    const lev = clamp(Number($("leverage").value || 1), 1, 20);
+
+    // margin model: simple isolated margin using leverage on notional changes in cash
+    // We treat cash as free collateral; buys reserve notional/lev + fee; sells release/consume accordingly.
+    // Position is a single net position (can go long/short).
+    const prevQty = state.posQty;
+    const prevAvg = state.posAvg;
+
+    function realizePnL(closeQty, entryAvg, exitPx, dir){
+      // dir: +1 for long closed by sell, -1 for short closed by buy
+      // pnl = (exit - entry)*qty*dir
+      return (exitPx - entryAvg) * closeQty * dir;
+    }
+
+    let realized = 0;
+
+    if (side === "buy"){
+      // If currently short, buying closes shorts first
+      if (prevQty < 0){
+        const closeQty = Math.min(qty, Math.abs(prevQty));
+        realized += realizePnL(closeQty, prevAvg, fillPrice, -1);
+        state.posQty = prevQty + closeQty; // less negative
+        qty -= closeQty;
+        if (state.posQty === 0) state.posAvg = 0;
+      }
+      // remaining opens/increases long
+      if (qty > 0){
+        const newQty = state.posQty + qty; // posQty is >=0 here
+        const newAvg = (state.posQty*state.posAvg + qty*fillPrice) / newQty;
+        state.posQty = newQty;
+        state.posAvg = newAvg;
+      }
+      // cash impact (margin)
+      state.cash -= (notional/lev + fee);
+    } else { // sell
+      if (prevQty > 0){
+        const closeQty = Math.min(qty, prevQty);
+        realized += realizePnL(closeQty, prevAvg, fillPrice, +1);
+        state.posQty = prevQty - closeQty;
+        qty -= closeQty;
+        if (state.posQty === 0) state.posAvg = 0;
+      }
+      if (qty > 0){
+        // open/increase short
+        const absPrev = Math.abs(state.posQty); // posQty <=0 here
+        const newAbs = absPrev + qty;
+        const newAvg = (absPrev*state.posAvg + qty*fillPrice) / newAbs;
+        state.posQty = -newAbs;
+        state.posAvg = newAvg;
+      }
+      state.cash -= (notional/lev + fee);
+    }
+
+    state.realized += realized;
+
+    state.trades.unshift({
+      id: uid(),
+      time: Date.now(),
+      symbol: state.symbol,
+      side,
+      qty: (side==="buy" ? +1 : +1) * (notional/fillPrice), // original qty (before close calc) is lost; use notional/fill
+      fill: fillPrice,
+      fee,
+      realized
+    });
+
+    // add marker on chart
+    try{
+      const t = Math.floor(Date.now()/1000);
+      state.candleSeries.setMarkers((state._markers || []).concat([{
+        time: t,
+        position: side==="buy" ? "belowBar" : "aboveBar",
+        color: side==="buy" ? "rgba(46,229,157,1)" : "rgba(255,77,109,1)",
+        shape: side==="buy" ? "arrowUp" : "arrowDown",
+        text: `${side.toUpperCase()} ${fmt4(notional/fillPrice)}`
+      }]));
+      state._markers = state.candleSeries.markers();
+    }catch{}
+  }
+
+  function cancelOrder(id){
+    const idx = state.orders.findIndex(o => o.id === id);
+    if (idx >= 0){
+      const o = state.orders[idx];
+      state.orders.splice(idx,1);
+      log(`Order canceled: ${o.side.toUpperCase()} ${o.type} qty=${o.qty} @ ${fmt(o.price,2)}`);
+      renderTables();
+    }
+  }
+
+  function tryFillLimitOrders(){
+    // Fill if market crosses limit using bid/ask
+    if (!Number.isFinite(state.bid) || !Number.isFinite(state.ask)) return;
+    const filled = [];
+    for (const o of state.orders){
+      if (o.type !== "limit") continue;
+      if (o.side === "buy"){
+        // buy limit fills when ask <= limit
+        if (state.ask <= o.price) filled.push(o);
+      } else {
+        // sell limit fills when bid >= limit
+        if (state.bid >= o.price) filled.push(o);
+      }
+    }
+    if (!filled.length) return;
+
+    for (const o of filled){
+      // remove
+      state.orders = state.orders.filter(x => x.id !== o.id);
+      const fillPx = o.price; // limit fill at limit
+      fillTrade(o.side, o.qty, fillPx);
+      log(`Limit ${o.side.toUpperCase()} filled: qty=${o.qty} @ ${fmt(fillPx,2)}`);
+    }
+    renderTables();
+    renderAccount();
+  }
+
+  function unrealizedPnL(){
+    const q = state.posQty;
+    if (!q || !Number.isFinite(state.posAvg)) return 0;
+    const m = mid();
+    if (!Number.isFinite(m)) return 0;
+    // long: (m-avg)*qty ; short: (avg-m)*abs(qty)
+    return q > 0 ? (m - state.posAvg)*q : (state.posAvg - m)*Math.abs(q);
+  }
+
+  function equity(){
+    return state.cash + unrealizedPnL() + state.realized;
+  }
+
+  function onMarketTick(){
+    // UI pills
+    const lp = Number.isFinite(state.last) ? state.last : mid();
+    $("lastPricePill").textContent = Number.isFinite(lp) ? `last: ${fmt(lp, 2)}` : "—";
+
+    if (Number.isFinite(state.bid) && Number.isFinite(state.ask)){
+      const sp = (state.ask - state.bid);
+      const spPct = sp / ((state.ask + state.bid)/2) * 100;
+      $("spreadPill").textContent = `spread: ${fmt(sp, 4)} (${fmt(spPct, 3)}%)`;
+    } else {
+      $("spreadPill").textContent = "spread: —";
+    }
+
+    tryFillLimitOrders();
+    renderAccount();
+  }
+
+  // ---------- Rendering ----------
+  function renderAccount(){
+    $("cash").textContent = fmt(state.cash, 2);
+    $("eq").textContent = fmt(equity(), 2);
+
+    const q = state.posQty;
+    const avg = state.posAvg;
+    const m = mid();
+    const up = unrealizedPnL();
+
+    const posText = q === 0 ? "FLAT" : (q > 0 ? `LONG ${fmt4(q)} @ ${fmt(avg,2)}` : `SHORT ${fmt4(Math.abs(q))} @ ${fmt(avg,2)}`);
+    $("pos").textContent = posText;
+
+    $("upnl").textContent = fmt(up, 2);
+    $("upnl").className = "v " + (up > 0 ? "pos" : up < 0 ? "neg" : "");
+  }
+
+  function renderTables(){
+    // Orders
+    const otb = $("ordersTable").querySelector("tbody");
+    otb.innerHTML = "";
+    for (const o of state.orders){
+      const tr = document.createElement("tr");
+      const t = new Date(o.time).toLocaleTimeString();
+      tr.innerHTML = `
+        <td class="muted">${t}</td>
+        <td><span class="tag ${o.side==="buy"?"good":"bad"}">${o.side.toUpperCase()}</span></td>
+        <td>${o.type.toUpperCase()}</td>
+        <td>${fmt4(o.qty)}</td>
+        <td>${fmt(o.price,2)}</td>
+        <td class="muted">${o.status}</td>
+        <td><button class="btn small ghost" data-cancel="${o.id}">Cancel</button></td>
+      `;
+      otb.appendChild(tr);
+    }
+    otb.querySelectorAll("[data-cancel]").forEach(btn=>{
+      btn.addEventListener("click", () => cancelOrder(btn.getAttribute("data-cancel")));
+    });
+
+    // Trades
+    const ttb = $("tradesTable").querySelector("tbody");
+    ttb.innerHTML = "";
+    for (const t of state.trades.slice(0, 200)){
+      const tr = document.createElement("tr");
+      const ts = new Date(t.time).toLocaleTimeString();
+      tr.innerHTML = `
+        <td class="muted">${ts}</td>
+        <td><span class="tag ${t.side==="buy"?"good":"bad"}">${t.side.toUpperCase()}</span></td>
+        <td>${fmt4(t.qty)}</td>
+        <td>${fmt(t.fill,2)}</td>
+        <td class="muted">${fmt(t.fee,2)}</td>
+        <td class="${t.realized>0?"pos":t.realized<0?"neg":"muted"}">${fmt(t.realized,2)}</td>
+      `;
+      ttb.appendChild(tr);
+    }
+  }
+
+  // ---------- Actions ----------
+  async function load(){
+    state.symbol = $("symbol").value;
+    state.tf = $("tf").value;
+    state.limit = Number($("limit").value);
+    state.source = $("source").value;
+
+    $("chartTitle").textContent = `${state.symbol} • ${state.tf} • ${state.source}`;
+    initChart();
+
+    stopSim();
+    closeSockets();
+
+    if (state.source === "sim"){
+      startSim();
+      setConn(false, "SIM");
+      renderAccount();
+      renderTables();
+      return;
+    }
+
+    setConn(false, "LOADING");
+    try{
+      log(`Loading history: ${state.symbol} ${state.tf} limit=${state.limit}`);
+      state.candles = await fetchKlines(state.symbol, state.tf, state.limit);
+      updateChart();
+      state.chart.timeScale().fitContent();
+      state.last = state.candles.at(-1)?.close ?? null;
+      log(`Loaded ${state.candles.length} candles.`);
+      connectBinanceStreams(state.symbol, state.tf);
+      setConn(true, "CONNECTED");
+    } catch (e){
+      setConn(false, "ERROR");
+      log(`Load failed: ${e.message}`, "err");
+    }
+    renderAccount();
+    renderTables();
+  }
+
+  function onPlace(sideOverride=null){
+    const type = $("ordType").value;
+    const side = sideOverride || $("side").value;
+    const qty = Number($("qty").value);
+    const limPxRaw = $("limitPrice").value.trim();
+    const limPx = limPxRaw ? Number(limPxRaw) : NaN;
+    if (type === "limit" && !limPxRaw){
+      // auto best for convenience
+      const px = side==="buy" ? state.bid : state.ask;
+      if (Number.isFinite(px)) $("limitPrice").value = px.toFixed(2);
+    }
+    placeOrder(side, type, qty, type==="limit" ? Number($("limitPrice").value) : NaN);
+  }
+
+  function resetAll(){
+    stopSim(); closeSockets();
+    state.candles = [];
+    state.last = state.bid = state.ask = null;
+    state.orders = [];
+    state.trades = [];
+    state.cash = 10000;
+    state.posQty = 0;
+    state.posAvg = 0;
+    state.realized = 0;
+    state._markers = [];
+    $("log").textContent = "";
+    log("Reset complete.");
+    initChart();
+    renderAccount();
+    renderTables();
+    setConn(false, "DISCONNECTED");
+  }
+
+  function exportCSV(){
+    const rows = [
+      ["time","symbol","side","qty","fill","fee","realized"].join(",")
+    ];
+    for (const t of state.trades.slice().reverse()){
+      rows.push([
+        new Date(t.time).toISOString(),
+        t.symbol,
+        t.side,
+        t.qty,
+        t.fill,
+        t.fee,
+        t.realized
+      ].join(","));
+    }
+    const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `paper_trades_${state.symbol}_${state.tf}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- Wire UI ----------
+  $("btnLoad").addEventListener("click", load);
+  $("btnFit").addEventListener("click", () => state.chart?.timeScale().fitContent());
+  $("btnToggleEMA").addEventListener("click", () => { state.showEMA = !state.showEMA; updateChart(); });
+  $("btnBuy").addEventListener("click", () => onPlace("buy"));
+  $("btnSell").addEventListener("click", () => onPlace("sell"));
+  $("btnCancelAll").addEventListener("click", () => { state.orders = []; renderTables(); log("Canceled all orders."); });
+  $("btnClearTrades").addEventListener("click", () => { state.trades = []; renderTables(); log("Cleared trades."); });
+  $("btnClearLog").addEventListener("click", () => { $("log").textContent=""; });
+  $("btnReset").addEventListener("click", resetAll);
+  $("btnExport").addEventListener("click", exportCSV);
+  $("slippageBps").addEventListener("input", () => slippageRate());
+
+  // default behaviors
+  $("ordType").addEventListener("change", () => {
+    const isLimit = $("ordType").value === "limit";
+    $("limitPrice").disabled = !isLimit;
+    $("limitPrice").placeholder = isLimit ? "required" : "n/a";
+  });
+
+  // ---------- Start ----------
+  $("limitPrice").disabled = true;
+  renderAccount();
+  renderTables();
+  initChart();
+  setConn(false, "DISCONNECTED");
+  log("Ready. Click Load to start (Binance) or choose Simulator (offline).");
+
+})();
+</script>
+</body>
+</html>
+```
+
+## What you get
+- Live **candlestick chart** (Binance public data) + optional **EMA(20)**
+- **Bid/ask** via book ticker, spread display
+- **Paper trading** market + limit orders, fills, fees, slippage, PnL, trade log
+- **Offline simulator** mode if you don’t want network access
+
+## To run
+1. Save as `terminal.html`
+2. Open it in a modern browser
+3. Click **Load**
+
+If you tell me which features you want next (positions per symbol, stop-loss/TP, bracket orders, indicators, alerts, backtesting, connecting to a broker/exchange), I’ll extend it.
