@@ -12,3 +12,5 @@
 3. Click **Load**
 
 features next (positions per symbol, stop-loss/TP, bracket orders, indicators, alerts, backtesting, connecting to a broker/exchange), 
+
+<img width="1350" height="768" alt="image" src="https://github.com/user-attachments/assets/ada8def9-87f2-4a6c-ae8e-199f1b15b430" />
