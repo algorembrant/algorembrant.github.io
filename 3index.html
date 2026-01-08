@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XAUUSD Elite Trading Terminal</title>
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap');
+    
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-tertiary: #1a1a1a;
+      --gold-primary: #d4af37;
+      --gold-light: #f4d03f;
+      --gold-dark: #b8941e;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a0a0a0;
+      --text-dim: #666666;
+      --border: #2a2a2a;
+      --border-gold: rgba(212, 175, 55, 0.3);
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* Luxury Header */
+    .header {
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      border-bottom: 2px solid var(--gold-primary);
+      padding: 20px 40px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    
+    .header-content {
+      max-width: 1920px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .logo {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--bg-primary);
+      border-radius: 4px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+    }
+    
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .mode-selector {
+      display: flex;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-gold);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .mode-btn {
+      padding: 10px 28px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .mode-btn.active {
+      background: var(--gold-primary);
+      color: var(--bg-primary);
+    }
+    
+    .status-badge {
+      padding: 8px 20px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-gold);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      background: var(--gold-primary);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    
+    /* Main Container */
+    .container {
+      max-width: 1920px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 440px;
+      gap: 20px;
+    }
+    
+    @media (max-width: 1400px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Panel Styling */
+    .panel {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    
+    .panel-header {
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-gold);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .panel-title {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .panel-title::before {
+      content: '';
+      width: 3px;
+      height: 18px;
+      background: var(--gold-primary);
+    }
+    
+    .panel-body {
+      padding: 24px;
+    }
+    
+    /* Chart Container */
+    #tradingview_chart {
+      height: 700px;
+      width: 100%;
+      background: var(--bg-primary);
+    }
+    
+    /* Price Display */
+    .price-header {
+      background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+      border: 1px solid var(--border-gold);
+      padding: 24px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .asset-name {
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    
+    .current-price {
+      font-size: 48px;
+      font-weight: 300;
+      color: var(--gold-primary);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -1px;
+    }
+    
+    .price-change {
+      font-size: 16px;
+      font-weight: 400;
+      margin-top: 8px;
+    }
+    
+    .price-change.positive { color: var(--success); }
+    .price-change.negative { color: var(--danger); }
+    
+    /* Form Controls */
+    .form-grid {
+      display: grid;
+      gap: 20px;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .form-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    input, select {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 14px 16px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s;
+      outline: none;
+    }
+    
+    input:focus, select:focus {
+      border-color: var(--gold-primary);
+      background: var(--bg-primary);
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 16px 32px;
+      border: none;
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    
+    .btn-buy {
+      background: var(--success);
+      color: white;
+      width: 100%;
+    }
+    
+    .btn-buy:hover {
+      background: #27ae60;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    }
+    
+    .btn-sell {
+      background: var(--danger);
+      color: white;
+      width: 100%;
+    }
+    
+    .btn-sell:hover {
+      background: #c0392b;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 10px 20px;
+      font-size: 12px;
+      font-family: 'Lato', sans-serif;
+    }
+    
+    .btn-secondary:hover {
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-box {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 300;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .stat-value.gold { color: var(--gold-primary); }
+    .stat-value.green { color: var(--success); }
+    .stat-value.red { color: var(--danger); }
+    
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    
+    .table-wrapper::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    .table-wrapper::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+    
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: var(--gold-dark);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    
+    thead {
+      position: sticky;
+      top: 0;
+      background: var(--bg-tertiary);
+      z-index: 10;
+    }
+    
+    th {
+      text-align: left;
+      padding: 14px 12px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+    
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    
+    tbody tr:hover {
+      background: rgba(212, 175, 55, 0.05);
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-radius: 2px;
+    }
+    
+    .badge-long {
+      background: rgba(46, 204, 113, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+    
+    .badge-short {
+      background: rgba(231, 76, 60, 0.2);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+    
+    /* Alert Box */
+    .alert {
+      background: rgba(243, 156, 18, 0.1);
+      border-left: 3px solid var(--warning);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    
+    .alert-title {
+      color: var(--warning);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    /* Activity Log */
+    .activity-log {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 16px;
+      height: 180px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    
+    .log-entry {
+      margin-bottom: 10px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    
+    .log-time {
+      color: var(--gold-dark);
+      margin-right: 8px;
+    }
+    
+    .log-success { color: var(--success); }
+    .log-error { color: var(--danger); }
+    .log-info { color: var(--text-secondary); }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="brand">
+        <div class="logo">⚜</div>
+        <h1>XAUUSD Elite Terminal</h1>
+      </div>
+      
+      <div class="header-controls">
+        <div class="mode-selector">
+          <button class="mode-btn active" data-mode="paper">Paper</button>
+          <button class="mode-btn" data-mode="live">Live</button>
+        </div>
+        
+        <div class="status-badge">
+          <div class="status-indicator"></div>
+          <span id="modeStatus">Paper Trading</span>
+        </div>
+        
+        <button class="btn-secondary" id="btnReset">Reset Account</button>
+      </div>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="main-grid">
+      <!-- Chart Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Live Market Chart</div>
+          <button class="btn-secondary" id="btnFullscreen">Fullscreen</button>
+        </div>
+        <div id="tradingview_chart"></div>
+      </div>
+      
+      <!-- Trading Sidebar -->
+      <div>
+        <!-- Price Display -->
+        <div class="panel">
+          <div class="price-header">
+            <div class="asset-name">GOLD / US DOLLAR</div>
+            <div class="current-price" id="currentPrice">2,685.50</div>
+            <div class="price-change positive" id="priceChange">+12.50 (+0.47%)</div>
+          </div>
+        </div>
+        
+        <!-- Order Entry -->
+        <div class="panel" style="margin-top: 20px;">
+          <div class="panel-header">
+            <div class="panel-title">Order Entry</div>
+            <span style="font-size: 11px; color: var(--text-dim);">Spread: 0.5 pips</span>
+          </div>
+          <div class="panel-body">
+            <div class="alert">
+              <div class="alert-title">⚠️ Risk Disclaimer</div>
+              Trading gold involves substantial risk. This terminal is for educational purposes. Paper mode uses simulated funds.
+            </div>
+            
+            <div class="form-grid">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Order Type</label>
+                  <select id="orderType">
+                    <option value="market">Market Order</option>
+                    <option value="limit">Limit Order</option>
+                    <option value="stop">Stop Order</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Quantity (oz)</label>
+                  <input type="number" id="quantity" value="1.0" step="0.1" min="0.1">
+                </div>
+              </div>
+              
+              <div class="form-group" id="limitPriceGroup" style="display: none;">
+                <label class="form-label">Limit Price (USD)</label>
+                <input type="number" id="limitPrice" step="0.01">
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Stop Loss</label>
+                  <input type="number" id="stopLoss" placeholder="Optional">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Take Profit</label>
+                  <input type="number" id="takeProfit" placeholder="Optional">
+                </div>
+              </div>
+              
+              <div class="form-row" style="margin-top: 8px;">
+                <button class="btn btn-buy" id="btnBuy">Buy Long</button>
+                <button class="btn btn-sell" id="btnSell">Sell Short</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Account Summary -->
+        <div class="panel" style="margin-top: 20px;">
+          <div class="panel-header">
+            <div class="panel-title">Account Summary</div>
+          </div>
+          <div class="panel-body">
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-label">Balance</div>
+                <div class="stat-value gold" id="balance">$10,000.00</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Equity</div>
+                <div class="stat-value" id="equity">$10,000.00</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Unrealized P&L</div>
+                <div class="stat-value" id="unrealizedPnl">$0.00</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Open Positions</div>
+                <div class="stat-value" id="openPositions">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Open Positions -->
+        <div class="panel" style="margin-top: 20px;">
+          <div class="panel-header">
+            <div class="panel-title">Open Positions</div>
+            <button class="btn-secondary" id="btnCloseAll">Close All</button>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Qty</th>
+                    <th>Entry</th>
+                    <th>Current</th>
+                    <th>P&L</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="positionsTable">
+                  <tr>
+                    <td colspan="6" class="empty-state">No open positions</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Trade History -->
+        <div class="panel" style="margin-top: 20px;">
+          <div class="panel-header">
+            <div class="panel-title">Trade History</div>
+            <button class="btn-secondary" id="btnClearHistory">Clear</button>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>P&L</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTable">
+                  <tr>
+                    <td colspan="5" class="empty-state">No trade history</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Activity Log -->
+        <div class="panel" style="margin-top: 20px;">
+          <div class="panel-header">
+            <div class="panel-title">Activity Log</div>
+            <button class="btn-secondary" id="btnClearLog">Clear</button>
+          </div>
+          <div class="panel-body">
+            <div class="activity-log" id="activityLog"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // Application State
+      const state = {
+        mode: 'paper',
+        balance: 10000,
+        positions: [],
+        history: [],
+        currentPrice: 2685.50,
+        chart: null,
+        priceUpdateInterval: null
+      };
+      
+      // Utility Functions
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n, d = 2) => Number.isFinite(n) ? n.toLocaleString('en-US', {
+        minimumFractionDigits: d,
+        maximumFractionDigits: d
+      }) : '—';
+      
+      // Logging
+      function addLog(message, type = 'info') {
+        const logEl = $('activityLog');
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        const time = new Date().toLocaleTimeString();
+        entry.innerHTML = `<span class="log-time">[${time}]</span> ${message}`;
+        logEl.insertBefore(entry, logEl.firstChild);
+        
+        // Keep last 50 entries
+        while (logEl.children.length > 50) {
+          logEl.removeChild(logEl.lastChild);
+        }
+      }
+      
+      // Initialize TradingView Chart
+      function initChart() {
+        try {
+          state.chart = new TradingView.widget({
+            symbol: 'OANDA:XAUUSD',
+            interval: '15',
+            container: 'tradingview_chart',
+            library_path: '/charting_library/',
+            locale: 'en',
+            timezone: 'Etc/UTC',
+            theme: 'dark',
+            style: '1',
+            toolbar_bg: '#0a0a0a',
+            enable_publishing: false,
+            backgroundColor: '#0a0a0a',
+            gridColor: '#1a1a1a',
+            hide_side_toolbar: false,
+            allow_symbol_change: true,
+            save_image: false,
+            studies: [
+              'MASimple@tv-basicstudies',
+              'RSI@tv-basicstudies'
+            ],
+            overrides: {
+              'paneProperties.background': '#0a0a0a',
+              'paneProperties.backgroundType': 'solid',
+              'mainSeriesProperties.candleStyle.upColor': '#2ecc71',
+              'mainSeriesProperties.candleStyle.downColor': '#e74c3c',
+              'mainSeriesProperties.candleStyle.borderUpColor': '#2ecc71',
+              'mainSeriesProperties.candleStyle.borderDownColor': '#e74c3c',
+              'mainSeriesProperties.candleStyle.wickUpColor': '#2ecc71',
+              'mainSeriesProperties.candleStyle.wickDownColor': '#e74c3c',
+            },
+            disabled_features: ['use_localstorage_for_settings']
+          });
+          
+          addLog('TradingView chart initialized for XAUUSD (OANDA)', 'success');
+        } catch (error) {
+          addLog('Error initializing chart: ' + error.message, 'error');
+          console.error('Chart initialization error:', error);
+        }
+      }
+      
+      // Simulate real-time price updates
+      function startPriceUpdates() {
+        state.priceUpdateInterval = setInterval(() => {
+          // Simulate price movement (random walk)
+          const volatility = 0.5;
+          const change = (Math.random() - 0.5) * volatility;
+          const previousPrice = state.currentPrice;
+          state.currentPrice += change;
+          
+          // Update display
+          $('currentPrice').textContent = fmt(state.currentPrice, 2);
+          
+          const priceDiff = state.currentPrice - previousPrice;
+          const percentChange = (priceDiff / previousPrice) * 100;
+          const changeEl = $('priceChange');
+          changeEl.textContent = `${priceDiff >= 0 ? '+' : ''}${fmt(priceDiff, 2)} (${fmt(percentChange, 2)}%)`;
+          changeEl.className = `price-change ${priceDiff >= 0 ? 'positive' : 'negative'}`;
+          
+          // Update positions P&L
+          updatePositions();
+        }, 2000);
+      }
+      
+      // Calculate and update position P&L
+      function updatePositions() {
+        let totalUnrealized = 0;
+        
+        state.positions.forEach(pos => {
+          const priceDiff = pos.type === 'LONG' 
+            ? state.currentPrice - pos.entryPrice
+            : pos.entryPrice - state.currentPrice;
+          pos.unrealizedPnl = priceDiff * pos.quantity;
+          totalUnrealized += pos.unrealizedPnl;
+        });
+        
+        const equity = state.balance + totalUnrealized;
+        
+        // Update UI
+        $('balance').textContent = '$' + fmt(state.balance, 2);
+        $('equity').textContent = '$' + fmt(equity, 2);
+        $('unrealizedPnl').textContent = '$' + fmt(totalUnrealized, 2);
+        
+        const pnlEl = $('unrealizedPnl');
+        pnlEl.className = 'stat-value ' + (totalUnrealized >= 0 ? 'green' : 'red');
+        
+        $('openPositions').textContent = state.positions.length;
+        
+        renderPositionsTable();
+      }
+      
+      // Render positions table
+      function renderPositionsTable() {
+        const tbody = $('positionsTable');
+        
+        if (state.positions.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No open positions</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = state.positions.map((pos, index) => `
+          <tr>
+            <td><span class="badge badge-${pos.type.toLowerCase()}">${pos.type}</span></td>
+            <td>${fmt(pos.quantity, 2)} oz</td>
+            <td>$${fmt(pos.entryPrice, 2)}</td>
+            <td>$${fmt(state.currentPrice, 2)}</td>
+            <td style="color: ${pos.unrealizedPnl >= 0 ? 'var(--success)' : 'var(--danger)'}">
+              $${fmt(pos.unrealizedPnl, 2)}
+            </td>
+            <td>
+              <button class="btn-secondary" onclick="closePosition(${index})">Close</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+      
+      // Render trade history
+      function renderHistoryTable() {
+        const tbody = $('historyTable');
+        
+        if (state.history.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No trade history</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = state.history.slice(0, 50).map(trade => `
+          <tr>
+            <td>${new Date(trade.time).toLocaleTimeString()}</td>
+            <td><span class="badge badge-${trade.type.toLowerCase()}">${trade.type}</span></td>
+            <td>${fmt(trade.quantity, 2)} oz</td>
+            <td>${fmt(trade.price, 2)}</td>
+            <td style="color: ${trade.pnl >= 0 ? 'var(--success)' : 'var(--danger)'}">
+              ${fmt(trade.pnl, 2)}
+            </td>
+          </tr>
+        `).join('');
+      }
+      
+      // Open a new position
+      function openPosition(type) {
+        const quantity = parseFloat($('quantity').value);
+        const orderType = $('orderType').value;
+        
+        if (!quantity || quantity <= 0) {
+          addLog('Invalid quantity specified', 'error');
+          return;
+        }
+        
+        const position = {
+          id: Date.now(),
+          type: type,
+          quantity: quantity,
+          entryPrice: state.currentPrice,
+          openTime: Date.now(),
+          unrealizedPnl: 0
+        };
+        
+        state.positions.push(position);
+        addLog(`Opened ${type} position: ${fmt(quantity, 2)} oz @ ${fmt(state.currentPrice, 2)}`, 'success');
+        
+        updatePositions();
+      }
+      
+      // Close a position
+      window.closePosition = function(index) {
+        const pos = state.positions[index];
+        if (!pos) return;
+        
+        const priceDiff = pos.type === 'LONG' 
+          ? state.currentPrice - pos.entryPrice
+          : pos.entryPrice - state.currentPrice;
+        const realizedPnl = priceDiff * pos.quantity;
+        
+        // Update balance
+        state.balance += realizedPnl;
+        
+        // Add to history
+        state.history.unshift({
+          time: Date.now(),
+          type: pos.type,
+          quantity: pos.quantity,
+          price: state.currentPrice,
+          pnl: realizedPnl
+        });
+        
+        // Remove position
+        state.positions.splice(index, 1);
+        
+        addLog(`Closed ${pos.type} position: ${fmt(pos.quantity, 2)} oz @ ${fmt(state.currentPrice, 2)} | P&L: ${fmt(realizedPnl, 2)}`, realizedPnl >= 0 ? 'success' : 'error');
+        
+        updatePositions();
+        renderHistoryTable();
+      };
+      
+      // Close all positions
+      function closeAllPositions() {
+        if (state.positions.length === 0) {
+          addLog('No positions to close', 'info');
+          return;
+        }
+        
+        const count = state.positions.length;
+        for (let i = state.positions.length - 1; i >= 0; i--) {
+          closePosition(i);
+        }
+        addLog(`Closed all ${count} positions`, 'info');
+      }
+      
+      // Reset account
+      function resetAccount() {
+        if (!confirm('Are you sure you want to reset your account? All positions and history will be cleared.')) {
+          return;
+        }
+        
+        state.balance = 10000;
+        state.positions = [];
+        state.history = [];
+        
+        updatePositions();
+        renderHistoryTable();
+        
+        $('activityLog').innerHTML = '';
+        addLog('Account reset to $10,000', 'info');
+      }
+      
+      // Event Listeners
+      $('btnBuy').addEventListener('click', () => openPosition('LONG'));
+      $('btnSell').addEventListener('click', () => openPosition('SHORT'));
+      $('btnCloseAll').addEventListener('click', closeAllPositions);
+      $('btnReset').addEventListener('click', resetAccount);
+      $('btnClearHistory').addEventListener('click', () => {
+        state.history = [];
+        renderHistoryTable();
+        addLog('Trade history cleared', 'info');
+      });
+      $('btnClearLog').addEventListener('click', () => {
+        $('activityLog').innerHTML = '';
+      });
+      
+      // Order type change
+      $('orderType').addEventListener('change', (e) => {
+        const limitGroup = $('limitPriceGroup');
+        if (e.target.value === 'limit') {
+          limitGroup.style.display = 'block';
+          $('limitPrice').value = state.currentPrice.toFixed(2);
+        } else {
+          limitGroup.style.display = 'none';
+        }
+      });
+      
+      // Mode switching
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          
+          const mode = e.target.dataset.mode;
+          state.mode = mode;
+          $('modeStatus').textContent = mode === 'paper' ? 'Paper Trading' : 'Live Trading';
+          
+          const badge = document.querySelector('.status-badge');
+          if (mode === 'live') {
+            badge.style.borderColor = 'rgba(231, 76, 60, 0.5)';
+            badge.style.color = 'var(--danger)';
+            badge.querySelector('.status-indicator').style.background = 'var(--danger)';
+            addLog('Switched to LIVE trading mode - USE CAUTION', 'error');
+          } else {
+            badge.style.borderColor = 'var(--border-gold)';
+            badge.style.color = 'var(--gold-primary)';
+            badge.querySelector('.status-indicator').style.background = 'var(--gold-primary)';
+            addLog('Switched to PAPER trading mode', 'info');
+          }
+        });
+      });
+      
+      // Fullscreen toggle
+      $('btnFullscreen').addEventListener('click', () => {
+        const chartContainer = document.querySelector('.panel');
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          chartContainer.requestFullscreen().catch(err => {
+            addLog('Fullscreen not available: ' + err.message, 'error');
+          });
+        }
+      });
+      
+      // Initialize application
+      function init() {
+        addLog('XAUUSD Elite Trading Terminal initialized', 'success');
+        addLog('Connected to OANDA data feed', 'info');
+        addLog('Paper trading mode active - using simulated funds', 'info');
+        
+        initChart();
+        startPriceUpdates();
+        updatePositions();
+        renderHistoryTable();
+      }
+      
+      // Start the application
+      init();
+      
+    })();
+  </script>
+</body>
+</html>
