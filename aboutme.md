@@ -8,13 +8,17 @@
 <li>I started drawing digitally in 2020 and post on <strong>Instagram</strong> <a href="https://www.instagram.com/nodlecobra"><img width="16" height="16" alt="Instagram" src="https://github.com/user-attachments/assets/1ff357f8-48ec-4e8b-b402-938d28ac45d2" /></a></li>
 <li>I started making a novel in <strong>Wattpad</strong> 2023 <a href="https://www.wattpad.com/story/362742718-malamig-na-init-engv"><img width="16" height="16" alt="Wattpad" src="https://github.com/user-attachments/assets/072f070d-dea8-4252-9e5b-c3b392c30929" /></a> <a href="https://github.com/algorembrant/MNI2023"><img width="16" height="16" alt="GitHub" src="https://github.com/user-attachments/assets/228da53f-7c80-4f34-914a-7826661d3664" /></a></li>
 <li>
-  I started making <strong>research papers</strong> in high school on 2023
-  <a href="https://github.com/algorembrant/TB2024">
-    <img width="16" height="16" alt="GitHub" src="https://github.com/user-attachments/assets/228da53f-7c80-4f34-914a-7826661d3664" /></a> and here is my high school resume
-  <a href="https://github.com/algorembrant/TB2024/blob/main/rem's_resume2024.pdf">
-    <img width="16" height="16" alt="PDF" src="https://github.com/user-attachments/assets/228da53f-7c80-4f34-914a-7826661d3664" />
-  </a>
+I started making <strong>research papers</strong> in high school in 2023
+<a href="https://github.com/algorembrant/TB2024">
+  <img width="16" height="16" alt="GitHub" src="https://github.com/user-attachments/assets/228da53f-7c80-4f34-914a-7826661d3664" />
+</a> and here is my high school resume
+<a href="https://github.com/algorembrant/TB2024/blob/main/rem's_resume2024.pdf">
+  <img width="16" height="16" alt="PDF" src="https://github.com/user-attachments/assets/228da53f-7c80-4f34-914a-7826661d3664" />
+</a>. Have entered 2 High School Research Competitions
+<a href="https://github.com/algorembrant/algorembrant.github.io/blob/main/highschool%20competitions/image.md">link</a>:
+2023 Division Festival of Talents in Science-Stemazing (3-person team), and 2023 Regional Innovation Camp (2-person team)
 </li>
+
 
 <li>I paused schooling as an <strong>Electrical Engineering (EE) student</strong> at <strong>CIT-U</strong> since 2025 <a href="https://cit.edu/"><img width="16" height="16" alt="CIT-U" src="https://github.com/user-attachments/assets/2acc01c3-5166-4061-bce6-e6f28e133034" /></a></li>
 <li>I started <strong>manual trading</strong> from late 2024 to 2025. I've read a lot of <strong>E-books</strong> found in <img width="16" height="16" alt="image" src="https://github.com/user-attachments/assets/c2ee1e4f-6e14-4575-8ae6-8560aa824bfe" /><img width="16" height="16" alt="image" src="https://github.com/user-attachments/assets/8ea997ec-02d0-4d02-b9bd-8df3603a1404" />, countless <strong>research papers</strong> <img width="16" height="16" alt="image" src="https://github.com/user-attachments/assets/ea341486-b4b0-4c78-bdb8-e70af8299403" />, and <strong>articles</strong>. You name it, I read it. Here are some methodologies I personally made with <strong>no AI!</strong> <em>(except for the last pages, LOL!)</em> <a href="https://drive.google.com/file/d/1R6qltpwIyxUY29CXOipuGSHORDSebuOL/view"><img width="16" height="16" alt="Trading Method" src="https://github.com/user-attachments/assets/0550cbb5-0b66-4155-9281-103356d029e6" /></a>. I am proficient at using the world's first multi-asset orderflow charting web platform, <strong>GoCharting</strong> <a href="https://gocharting.com/"><img width="16" height="16" alt="GoCharting" src="https://github.com/user-attachments/assets/a13e83fc-9743-41a6-b5d7-6477fbbd4a9a" /></a>. I also share trading concepts in live online boards on <strong>Miro</strong> <a href="https://miro.com/app/board/uXjVLefAv9w=/"><img width="16" height="16" alt="Miro" src="https://github.com/user-attachments/assets/03a7e1b2-f6dd-4c1d-84c0-ff5ea218dc2a" /></a> and post manual trades on <strong>TikTok</strong> <a href="https://www.tiktok.com/@xau8er"><img width="16" height="16" alt="TikTok" src="https://github.com/user-attachments/assets/4ef971db-e8d5-479e-ad90-aa4fafbd6849" /></a></li>
@@ -29,7 +33,6 @@
 </div>
 </div><br>
 
-High School Research Competitions: 2023 Division Festival of Talents in Science-Stemazing  (3-person team), and 2023 Regional Innovation Camp (2-person team)
 
 [<img width="1346" height="334" alt="image" src="https://github.com/user-attachments/assets/0ae4d41c-bab8-4df2-a037-09f6e4fdb9ef" />](https://aiqg.vercel.app/)<br>
 
