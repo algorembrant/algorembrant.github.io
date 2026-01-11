@@ -8,7 +8,7 @@
 <li>I started drawing digitally in 2020 and post on <strong>Instagram</strong> <a href="https://www.instagram.com/nodlecobra"><img width="16" height="16" alt="Instagram" src="https://github.com/user-attachments/assets/1ff357f8-48ec-4e8b-b402-938d28ac45d2" /></a></li>
 <li>I started making a novel in <strong>Wattpad</strong> 2023 <a href="https://www.wattpad.com/story/362742718-malamig-na-init-engv"><img width="16" height="16" alt="Wattpad" src="https://github.com/user-attachments/assets/072f070d-dea8-4252-9e5b-c3b392c30929" /></a> <a href="https://github.com/algorembrant/MNI2023"><img width="16" height="16" alt="GitHub" src="https://github.com/user-attachments/assets/228da53f-7c80-4f34-914a-7826661d3664" /></a></li>
 <li>
-  I started making <strong>research papers</strong> in high school in 2024
+  I started making <strong>research papers</strong> in high school on 2023
   <a href="https://github.com/algorembrant/TB2024">
     <img width="16" height="16" alt="GitHub" src="https://github.com/user-attachments/assets/228da53f-7c80-4f34-914a-7826661d3664" /></a> and here is my high school resume
   <a href="https://github.com/algorembrant/TB2024/blob/main/rem's_resume2024.pdf">
@@ -28,6 +28,8 @@
 <strong>Contact:</strong> Email <a href="mailto:nodlehaki@gmail.com"><img width="16" height="16" alt="Email" src="https://github.com/user-attachments/assets/9f00aa47-8afc-49b5-9c84-bc21c875665e" /></a> and Social <a href="https://x.com/qsrsunstoic"><img width="16" height="16" alt="X/Twitter" src="https://github.com/user-attachments/assets/603e3b0d-7963-4864-a1da-d3a6d7927feb" /></a>
 </div>
 </div><br>
+
+High School Research Competitions: 2023 Division Festival of Talents in Science-Stemazing  (3-person team), and 2023 Regional Innovation Camp (2-person team)
 
 [<img width="1346" height="334" alt="image" src="https://github.com/user-attachments/assets/0ae4d41c-bab8-4df2-a037-09f6e4fdb9ef" />](https://aiqg.vercel.app/)<br>
 
