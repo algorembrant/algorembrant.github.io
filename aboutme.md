@@ -1,5 +1,5 @@
 <div style="margin:0;padding:0;font-family:inherit;line-height:1">
-<h4 style="margin:0;padding:0">Hi, I had a somewhat unusual transition in life. I'm not lost in the past, but if I were to recall, I just love what I'm doing.</h4>
+<h4 style="margin:0;padding:0">Hi, I had a somewhat unusual transition in life. I'm not lost in the past, but if I were to recall, I just love what I'm doing. (most images has embeded link)</h4>
 <ul style="margin:0;padding-left:20px">
 <li>I have loved <strong>art</strong> and building & create,  since I was born</li>
 <li>I played <strong>Roblox</strong> since 2017 <a href="https://www.roblox.com/users/593328031/profile?friendshipSourceType=PlayerSearch"><img width="16" height="16" alt="Roblox" src="https://github.com/user-attachments/assets/9e0c1471-0a20-44c6-a196-da5d43e34869" /></a></li>
